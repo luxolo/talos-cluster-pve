@@ -2,7 +2,7 @@
 # List all nodes in the cluster
 data "proxmox_virtual_environment_nodes" "available_nodes" {}
 
-resource "random_shuffle" "control_nodes" {
+resource "random_shuffle" "master_nodes" {
   input        = data.proxmox_virtual_environment_nodes.available_nodes.names
   result_count = var.MASTER_COUNT
 }
@@ -12,27 +12,18 @@ resource "random_shuffle" "worker_nodes" {
   result_count = var.WORKER_COUNT
 }
 
-## == Create an ISO image using ================================================
-## == Talos Image Factory ======================================================
-
-data "http" "talos_image_id" {
-  url    = "https://factory.talos.dev/schematics"
-  method = "POST"
-
-  request_body = file("${path.module}/templates/schematic.yaml")
+## == Download image and create template =======================================
+locals {
+  iso_image_url   = "https://factory.talos.dev/image/${jsondecode(data.http.talos_image_id.response_body).id}/${var.imager_version}/metal-amd64.iso"
+  remote_image_name = "talos.iso"
 }
 
-## == Download image and create template =======================================
-
 resource "proxmox_virtual_environment_download_file" "talos_template" {
-  depends_on   = [
-    data.http.talos_image_id
-  ]
   content_type = "iso"
   datastore_id = var.iso-datastore_id
   node_name    = data.proxmox_virtual_environment_nodes.available_nodes.names[0]
-  url          = "https://factory.talos.dev/image/${jsondecode(data.http.talos_image_id.response_body).id}/${var.imager_version}/metal-amd64.iso"
-  file_name    = "talos.iso"
+  url          = local.iso_image_url
+  file_name    = local.remote_image_name
 }
 
 resource "proxmox_virtual_environment_vm" "talos_template" {
@@ -74,7 +65,7 @@ resource "proxmox_virtual_environment_vm" "talos_template" {
 
 ## == VM creation ==============================================================
 
-module "master_domain" {
+module "master_nodes" {
 
   depends_on = [proxmox_virtual_environment_vm.talos_template]
 
@@ -87,12 +78,13 @@ module "master_domain" {
   autostart       = var.autostart
   stop_on_destroy = var.stop_on_destroy
   default_bridge  = var.DEFAULT_BRIDGE
-  target_node     = random_shuffle.control_nodes.result[count.index]
+  target_node     = random_shuffle.master_nodes.result[count.index]
   source_node     = proxmox_virtual_environment_vm.talos_template.node_name
   vlan_id         = var.vlan_id
+  cidr_ip_range   = var.cidr_ip_range
 }
 
-module "worker_domain" {
+module "worker_nodes" {
 
   depends_on = [proxmox_virtual_environment_vm.talos_template]
 
@@ -108,4 +100,5 @@ module "worker_domain" {
   target_node    = random_shuffle.worker_nodes.result[count.index]
   source_node    = proxmox_virtual_environment_vm.talos_template.node_name
   vlan_id        = var.vlan_id
+  cidr_ip_range   = var.cidr_ip_range
 }

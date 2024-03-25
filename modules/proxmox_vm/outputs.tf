@@ -1,5 +1,6 @@
 locals {
-  address_ipv4_list = [for ip in flatten(proxmox_virtual_environment_vm.node.ipv4_addresses) : ip if can(regex("10..*", ip))]
+  # address_ipv4_list = [for ip in flatten(proxmox_virtual_environment_vm.node.ipv4_addresses) : ip if can(regex("192..*", ip))]
+  address_ipv4_list = [for ip in flatten(proxmox_virtual_environment_vm.node.ipv4_addresses) : ip if contains(module.cidr_block.ip_addresses, ip)]
   address = length(local.address_ipv4_list) > 0 ? local.address_ipv4_list[0] : ""
 }
 

@@ -48,3 +48,8 @@ variable "vlan_id" {
   description = "VLAN ID for the node"
   type = number
 }
+
+variable "cidr_ip_range" {
+  description = "IP range where the VMs will get an IP from"
+  type        = string  
+}

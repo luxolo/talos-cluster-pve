@@ -1,3 +1,8 @@
+module "cidr_block" {
+  source = "../cidr-expand"
+  cidr   = var.cidr_ip_range
+}
+
 resource "proxmox_virtual_environment_vm" "node" {
   name                = var.name
   on_boot             = var.autostart
