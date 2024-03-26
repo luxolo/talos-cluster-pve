@@ -81,7 +81,7 @@ module "master_nodes" {
   target_node     = random_shuffle.master_nodes.result[count.index]
   source_node     = proxmox_virtual_environment_vm.talos_template.node_name
   vlan_id         = var.vlan_id
-  cidr_ip_range   = var.cidr_ip_range
+  cidr_ip_range   = var.CIDR_IP_RANGE
 }
 
 module "worker_nodes" {
@@ -100,5 +100,5 @@ module "worker_nodes" {
   target_node    = random_shuffle.worker_nodes.result[count.index]
   source_node    = proxmox_virtual_environment_vm.talos_template.node_name
   vlan_id        = var.vlan_id
-  cidr_ip_range   = var.cidr_ip_range
+  cidr_ip_range   = var.CIDR_IP_RANGE
 }

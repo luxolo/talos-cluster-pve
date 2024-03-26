@@ -1,4 +1,4 @@
-variable "cidr_ip_range" {
+variable "CIDR_IP_RANGE" {
   description = "IP range where the VMs will get an IP from"
   type        = string  
 }
