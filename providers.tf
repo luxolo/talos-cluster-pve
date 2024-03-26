@@ -32,3 +32,4 @@ provider "proxmox" {
     username = var.PROXMOX_USERNAME
   }
 }
+

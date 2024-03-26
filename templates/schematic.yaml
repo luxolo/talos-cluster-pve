@@ -1,6 +1,7 @@
 customization:
   extraKernelArgs:
     - mitigations=off
+    - net.ifnames=0
   systemExtensions:
     officialExtensions:
       - siderolabs/binfmt-misc
