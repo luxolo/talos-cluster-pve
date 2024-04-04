@@ -37,7 +37,7 @@ resource "talos_machine_configuration_apply" "controlplane" {
 resource "talos_machine_configuration_apply" "worker" {
   for_each  = { for k,v in module.worker_nodes : k => v.address }
   client_configuration        = talos_machine_secrets.talos_secret.client_configuration
-  machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
+  machine_configuration_input = data.talos_machine_configuration.worker.machine_configuration
   node                        = each.value
   config_patches = [
     templatefile("${path.module}/templates/patch-worker.tmpl", {

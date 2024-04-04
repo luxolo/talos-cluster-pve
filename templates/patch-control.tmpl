@@ -6,7 +6,13 @@ machine:
         dhcp: true
         vip:
           ip: ${floating_ip}
+  features:
+    kubePrism:
+      enabled: true
+      port: 7445
 cluster:
   network:
     cni:
       name: none
+  proxy:
+    disabled: true
