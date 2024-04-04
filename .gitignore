@@ -37,3 +37,5 @@ terraform.rc
 # Custom project paths
 .talosconfig
 .kubeconfig
+.envrc
+devbox.*
